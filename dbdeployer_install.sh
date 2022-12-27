@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+linux_group_id=4857					      #standardizes GID for linux envs
 error_state='false'                                           #initialize error state
 package_name='dbdeployer'                                     #name of package/folder to reference
 package_base_data_dir='/var/lib'                              #location to install data dir
@@ -137,7 +138,15 @@ fi #end error check
 #create group
 if [ `grep "${group_name}" /etc/group | wc -l` -eq 0 ]
 then
-  groupadd "${group_name}"
+  if [ `grep ":${linux_group_id}:" /etc/group | grep -v "${group_name}" | wc -l` -eq 1 ]
+  then
+    echo "Linux group id (gid) already exists, please change, exiting"
+  fi
+  if ! [ -z ${linux_group_id+x} ]
+  then
+    linux_group_flag="-g ${linux_group_id}"
+  fi
+  groupadd $linux_group_flag "${group_name}"
   if [ $? -ne 0 ]
   then
     echo "Failed to add group to system, exiting"
