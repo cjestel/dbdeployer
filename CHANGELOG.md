@@ -1,3 +1,12 @@
+## 2023-XX-XX Release 1.5.11
+### Summary
+Bug Fix
+
+### Changes
+  - Bug Fix: variables_to_replace in 1.5.10 caused failure when variable was empty, properly quoted now
+  - Bug Fix: Some instances are not respecting the users .psqlrc file and reverting to default output mode of using the "more" program. This gives unintended consequences when a file has already been deployed.
+
+
 ## 2021-03-31 Release 1.5.10
 ### Summary
 Bug Fix
