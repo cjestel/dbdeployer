@@ -860,6 +860,7 @@ fi
 #run the report to get what needs deployed and then deploy it
 if [ "${current}" = "true" ]
 then
+  #echo "update_db_to_current \"${dbname}\" \"${db_destination_name}\""
   update_db_to_current "${dbname}" "${db_destination_name}"
   if [ $? -ne 0 ]
   then
