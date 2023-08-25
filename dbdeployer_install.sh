@@ -1,18 +1,25 @@
 #!/usr/bin/env bash
 
+local_install_dir="/home/`whoami`/local_exec"
+echo "local_install_dir: ${local_install_dir}"
+if ! [ -d "${local_install_dir}" ]
+then
+  echo "Creating Directory: ${local_install_dir}"
+  mkdir -p $local_install_dir
+fi
 linux_group_id=4857					      #standardizes GID for linux envs
 error_state='false'                                           #initialize error state
 package_name='dbdeployer'                                     #name of package/folder to reference
-package_base_data_dir='/var/lib'                              #location to install data dir
+package_base_data_dir="${local_install_dir}/var/lib"          #location to install data dir
 package_data_dir="${package_base_data_dir}/${package_name}"   #full path to data dir
 package_database_dir="${package_data_dir}/databases"          #default path for user databases
-bin_dir='/usr/bin'                                            #location to install binary
-config_base_dir='/etc'                                        #location to install config dir
+bin_dir="${local_install_dir}/usr/bin"                        #location to install binary
+config_base_dir="${local_install_dir}/etc"                    #location to install config dir
 config_dir="${config_base_dir}/${package_name}"               #full path to config dir
-function_base_dir='/usr/libexec'                              #location to install functions dir
+function_base_dir="${local_install_dir}/usr/libexec"          #location to install functions dir
 function_dir="${function_base_dir}/${package_name}"           #full path to functions dir
 plugin_dir="${function_dir}"                                  #location for plugin/module directory
-log_dir="/var/log/${package_name}"                            #default log location
+log_dir="${local_install_dir}/var/log/${package_name}"        #default log location
 group_name='dbdeployer'                                       #name of the group (used for log file permission)
 
 
@@ -21,11 +28,11 @@ BASEDIR=$(dirname $0)
 cd $BASEDIR
 
 #verify suitable user to install (root)
-if [ `whoami` != 'root' ]
-then
-  echo "Must be root to run install"
-  error_state='true'
-fi
+#if [ `whoami` != 'root' ]
+#then
+#  echo "Must be root to run install"
+#  error_state='true'
+#fi
 
 #verify directories exist
 for x in dbtype dbtype/postgres 'functions' sample_structure deployments ${bin_dir} ${config_base_dir} ${function_base_dir} ${package_base_data_dir}
@@ -33,7 +40,8 @@ do
   if ! [ -d "${x}" ]
   then
     echo "Directory ${x} was not found"
-    error_state='true'
+    mkdir -p $x
+    #error_state='true'
   fi
 done
 
@@ -59,7 +67,7 @@ for x in ${config_dir} ${function_dir} ${package_data_dir} ${package_database_di
 do
   if ! [ -d ${x} ]
   then
-    mkdir ${x}
+    mkdir -p ${x}
     if [ $? -ne 0 ]
     then
       echo "Failed to create directory '${x}', exiting"
@@ -136,37 +144,37 @@ then
 fi #end error check
 
 #create group
-if [ `grep "${group_name}" /etc/group | wc -l` -eq 0 ]
-then
-  if [ `grep ":${linux_group_id}:" /etc/group | grep -v "${group_name}" | wc -l` -eq 1 ]
-  then
-    echo "Linux group id (gid) already exists, please change, exiting"
-  fi
-  if ! [ -z ${linux_group_id+x} ]
-  then
-    linux_group_flag="-g ${linux_group_id}"
-  fi
-  groupadd $linux_group_flag "${group_name}"
-  if [ $? -ne 0 ]
-  then
-    echo "Failed to add group to system, exiting"
-    exit 1
-  fi #end error check
-fi
+#if [ `grep "${group_name}" /etc/group | wc -l` -eq 0 ]
+#then
+#  if [ `grep ":${linux_group_id}:" /etc/group | grep -v "${group_name}" | wc -l` -eq 1 ]
+#  then
+#    echo "Linux group id (gid) already exists, please change, exiting"
+#  fi
+#  if ! [ -z ${linux_group_id+x} ]
+#  then
+#    linux_group_flag="-g ${linux_group_id}"
+#  fi
+#  groupadd $linux_group_flag "${group_name}"
+#  if [ $? -ne 0 ]
+#  then
+#    echo "Failed to add group to system, exiting"
+#    exit 1
+#  fi #end error check
+#fi
 
 #set permissions on log_dir
-chown root:${group_name} ${log_dir}
-if [ $? -ne 0 ]
-then
-  echo "Failed to set ownership of log directory, exiting"
-  exit 1
-fi #end error check
-chmod 775 ${log_dir}
-if [ $? -ne 0 ]
-then
-  echo "Failed to set permission on log directory, exiting"
-  exit 1
-fi #end error check
+#chown `whoami`:${group_name} ${log_dir}
+#if [ $? -ne 0 ]
+#then
+#  echo "Failed to set ownership of log directory, exiting"
+#  exit 1
+#fi #end error check
+#chmod 775 ${log_dir}
+#if [ $? -ne 0 ]
+#then
+#  echo "Failed to set permission on log directory, exiting"
+#  exit 1
+#fi #end error check
 
 #installation is complete
 echo "Installation has completed successfully."
