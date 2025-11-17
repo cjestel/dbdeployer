@@ -257,9 +257,24 @@ then
 fi
 
 script_name=`basename $0`
-deployed_by="`who am i | awk {'print $1'}`"
-deployed_as="`whoami`"
+if [ -n "$SUDO_USER" ]; then
+  deployed_by="$SUDO_USER"
+elif [ -n "$USER" ]; then
+  deployed_by="$USER"
+elif command -v logname >/dev/null 2>&1; then
+  deployed_by=`logname 2>/dev/null || echo "unknown"`
+else
+  deployed_by="unknown"
+fi
 
+# Get the current effective user
+if command -v whoami >/dev/null 2>&1; then
+  deployed_as=`whoami`
+elif command -v id >/dev/null 2>&1; then
+  deployed_as=`id -un`
+else
+  deployed_as="unknown"
+fi
 
 #################################
 #  Show help if necessary

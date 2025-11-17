@@ -66,7 +66,7 @@ run_as='postgres'
 # ls -o1 ${dbname}/${i}/*.sql and counting as a space delimited set.  You can verify
 #you have the correct value by piping output to awk with the below line
 # | awk {'print ${deployment_report_argnum}'}
-deployment_report_argnum='$8'
+deployment_report_argnum='$9'
 
 #uncomment and specify the environment you would like to automatically assume.
 #Environments can be used to identify files that are different for each environment

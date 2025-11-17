@@ -55,7 +55,7 @@ deployment_report() {
       if [ "`git rev-parse --abbrev-ref --symbolic-full-name @{u}`" = "${branch_to_compare}" ]
       then
         # on master, compare from file system
-        FS=`eval "ls -o1 "${db_basedir}"/"${dbname}"/"${i}"/*.sql | awk {'print ${deployment_report_argnum}'} | sort -rn"`
+        FS=`eval "ls -l "${db_basedir}"/"${dbname}"/"${i}"/*.sql | awk {'print ${deployment_report_argnum}'} | sort -rn"`
       else
         diff_files=`git diff --name-status ${branch_to_compare} | grep -E "^A|^M" | awk {'print \$2'} | grep "^${dbname}/${i}/[^/]*\.sql$" | xargs`
 
@@ -76,7 +76,7 @@ deployment_report() {
     #echo -e "FS: \n${FS}"
 
     #diff -B -b <(echo "${DB}" | sort -n) <(echo "${FS}" | sort -n) | sort -n
-    for x in `diff -B -b <(echo "${DB}" | sort -n) <(echo "${FS}" | sort -n) | grep ">" | grep '.sql' | sed 's/^..//' | sort -n | xargs`
+    for x in `diff -B -b <(echo "${DB}" | sort -n) <(echo "${FS}" | sort -n) | grep "^+" | grep '.sql' | sed 's/^+//' | sort -n | xargs`
     do
       if ! [ -z "${x}" ]
       then
@@ -110,7 +110,7 @@ deployment_report() {
             FS_CHECKSUM='' #initialize empty var
             if [ "${current_branch}" = "${branch_to_compare}" ]
             then
-              FS_LIST=`eval "ls -o1 "${deploy_folder}"/*.sql | awk {'print ${deployment_report_argnum}'} | sort -rn | xargs"`
+              FS_LIST=`eval "ls -l "${deploy_folder}"/*.sql | awk {'print ${deployment_report_argnum}'} | sort -rn | xargs"`
 
             else
               FS_LIST=`git diff --name-status ${branch_to_compare} | grep -E "^A|^M" | awk {'print \$2'} | grep "^${dbname}/${i}/[^/]*\.sql$" | xargs`
@@ -149,7 +149,7 @@ deployment_report() {
   #    echo "FS: $FS"
 
 
-          for x in `diff -B -b <(echo "${DB}" | sort -n) <(echo "${FS}" | sort -n) | grep ">" | grep '.sql' | sed 's/^..//' | sort -n | xargs`
+          for x in `diff -B -b <(echo "${DB}" | sort -n) <(echo "${FS}" | sort -n) | grep "^+" | grep '.sql' | sed 's/^+//' | sort -n | xargs`
           do
             if ! [ -z "${x}" ]
             then

@@ -141,17 +141,35 @@ then
   if [ `grep ":${linux_group_id}:" /etc/group | grep -v "${group_name}" | wc -l` -eq 1 ]
   then
     echo "Linux group id (gid) already exists, please change, exiting"
+    exit 1
   fi
-  if ! [ -z ${linux_group_id+x} ]
-  then
-    linux_group_flag="-g ${linux_group_id}"
+  
+  # Detect if we're using BusyBox or standard Linux tools
+  if command -v groupadd >/dev/null 2>&1; then
+    # Standard Linux (groupadd available)
+    if ! [ -z ${linux_group_id+x} ]
+    then
+      linux_group_flag="-g ${linux_group_id}"
+    fi
+    groupadd $linux_group_flag "${group_name}"
+  elif command -v addgroup >/dev/null 2>&1; then
+    # BusyBox (addgroup available)
+    if ! [ -z ${linux_group_id+x} ]
+    then
+      addgroup -g ${linux_group_id} "${group_name}"
+    else
+      addgroup "${group_name}"
+    fi
+  else
+    echo "Neither groupadd nor addgroup found, exiting"
+    exit 1
   fi
-  groupadd $linux_group_flag "${group_name}"
+  
   if [ $? -ne 0 ]
   then
     echo "Failed to add group to system, exiting"
     exit 1
-  fi #end error check
+  fi
 fi
 
 #set permissions on log_dir

@@ -12,12 +12,12 @@ deployment_report() {
 
     if [ `ls "${db_basedir}"/"${dbname}"/"${i}"/ | grep ".sql" | wc -l | xargs` -gt 0 ]
     then
-      FS=`eval "ls -o1 "${db_basedir}"/"${dbname}"/"${i}"/*.sql | awk {'print ${deployment_report_argnum}'} | sort -rn"`
+      FS=`eval "ls -l "${db_basedir}"/"${dbname}"/"${i}"/*.sql | awk {'print ${deployment_report_argnum}'} | sort -rn"`
     else
       FS=''
     fi
 
-    for x in `diff -B -b <(echo "${DB}") <(echo "${FS}") | grep ">" | grep '.sql' | sed 's/^..//' | sort -n | xargs`
+    for x in `diff -B -b <(echo "${DB}") <(echo "${FS}") | grep "^+" | grep '.sql' | sed 's/^+//' | sort -n | xargs`
     do
       if ! [ -z "${x}" ]
       then
@@ -49,7 +49,7 @@ deployment_report() {
           if [ `ls "${deploy_folder}"/ | grep ".sql" | wc -l | xargs` -gt 0 ]
           then
             FS_CHECKSUM='' #initialize empty var
-            FS_LIST=`eval "ls -o1 "${deploy_folder}"/*.sql | awk {'print ${deployment_report_argnum}'} | sort -rn | xargs"`
+            FS_LIST=`eval "ls -l "${deploy_folder}"/*.sql | awk {'print ${deployment_report_argnum}'} | sort -rn | xargs"`
             for j in ${FS_LIST}
             do
               #echo "file: $j"
@@ -76,7 +76,7 @@ deployment_report() {
   #    echo "FS: $FS"
 
 
-          for x in `diff -B -b <(echo "${DB}") <(echo "${FS}") | grep ">" | grep '.sql' | sed 's/^..//' | sort -n | xargs`
+          for x in `diff -B -b <(echo "${DB}") <(echo "${FS}") | grep "^+" | grep '.sql' | sed 's/^+//' | sort -n | xargs`
           do
             if ! [ -z "${x}" ]
             then
